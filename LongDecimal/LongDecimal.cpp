@@ -10,6 +10,9 @@
 const long long DECIMAL_BASE = 1000ull * 1000 * 1000;
 const unsigned int DECIMAL_LENGTH = 3;
 
+class Decimal; 
+void swap(Decimal& first, Decimal& second); 
+
 class Decimal
 {
 private:
@@ -31,13 +34,13 @@ private:
 		//beware the overflow when increase_modular!!!
 
 	}
-	
+
 	void increase_modular(const Decimal &d) {
 		for (int i = DECIMAL_LENGTH - 1; i >= 0; i--)
 			arr[i] += d.arr[i];
 		normalize();
 	}
-	
+
 	void decrease_modular(const Decimal &d) {
 		for (int i = DECIMAL_LENGTH - 1; i >= 0; i--)
 			arr[i] -= d.arr[i];
@@ -88,7 +91,7 @@ public:
 
 	Decimal divide(const Decimal &d, bool return_divisor) const {
 		Decimal cur(0), res = *this;
-		
+
 		while (res.compare_modular(d) >= 0)
 			res = res.add(d, (d.sign == sign ? 1 : 0)), cur = cur.add(1, 0);
 		cur.sign = sign * d.sign; // correct sign
@@ -160,23 +163,24 @@ public:
 		delete[] arr;
 	}
 
-	void swap(Decimal& first, Decimal& second) // nothrow
+	friend void swap(Decimal& d1, Decimal& d2) // nothrow
 	{
+		using std::swap;
 
-		std::swap(first.arr, second.arr);
-		std::swap(first.sign, second.sign);
+		std::swap(d1.arr, d2.arr);
+		std::swap(d1.sign, d2.sign);
 	}
 
 	Decimal& operator=(Decimal d)
 	{
-		swap(*this, d);
+		::swap(*this, d);
 		return *this;
 	}
 
 	friend std::string to_string(const Decimal &d) {
 		std::string ans = (d.sign == -1 ? "-" : "");
 		int i = 0;
-		for (; i < DECIMAL_LENGTH && d.arr[i] == 0; i++) { }
+		for (; i < DECIMAL_LENGTH && d.arr[i] == 0; i++) {}
 		if (i == DECIMAL_LENGTH)
 			return "0";
 		bool complete = false;
@@ -187,7 +191,7 @@ public:
 				ans += std::string(std::to_string(DECIMAL_BASE).size() - to_format.size() - 1, '0') + to_format;
 			else
 				ans += to_format;
-		    complete = true;
+			complete = true;
 		}
 		return ans;
 	}
